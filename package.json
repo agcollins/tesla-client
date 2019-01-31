@@ -1,0 +1,19 @@
+{
+  "name": "m3js",
+  "version": "0.0.1",
+  "description": "tesla model 3 js client",
+  "main": "client.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agcollins/m3js.git"
+  },
+  "author": "Alexander Collins",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agcollins/m3js/issues"
+  },
+  "homepage": "https://github.com/agcollins/m3js#readme"
+}
