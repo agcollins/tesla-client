@@ -46,14 +46,16 @@ describe('tesla oauth', () => {
         })
 
         it('should throw if the POST call fails', async () => {
-            const postError = Promise.reject(new Error('rejected!'))
-            const axiosInstanceMock = { post: jest.fn(() => postError) }
+            const postError = new Error('rejected!')
+            const axiosInstanceMock = { post: jest.fn(() => Promise.reject(postError)) }
             axios.create = jest.fn(() => axiosInstanceMock)
             loginClient = new TeslaOAuthClient()
 
-            const error = loginClient.login(loginDetails)
-
-            expect(error).toEqual(postError)
+            try {
+                await loginClient.login(loginDetails)
+            } catch (error) {
+                expect(error).toEqual(postError)
+            }
         })
     })
 })
