@@ -4,7 +4,8 @@
   "description": "tesla model 3 js client",
   "main": "dist/client.js",
   "scripts": {
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "prepare": "npx tsc"
   },
   "repository": {
     "type": "git",
