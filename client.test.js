@@ -3,22 +3,14 @@ jest.mock('axios')
 const axios = require('axios')
 const { TeslaOAuthClient } = require('./client')
 
-const axiosInstanceMock = {
-    post: jest.fn()
-}
-
-axios.create = jest.fn(() => (axiosInstanceMock))
-
 beforeEach(() => {
     axios.mockClear()
-    axios.create.mockClear();
 })
 
-describe('tesla authentication', () => {
+describe('tesla oauth', () => {
     let loginClient, loginDetails
 
     beforeEach(() => {
-        loginClient = new TeslaOAuthClient()
         loginDetails = {
             email: 'sullenumbra@gmail.com',
             clientSecret: 'asdf',
@@ -28,9 +20,20 @@ describe('tesla authentication', () => {
     })
 
     describe('getting a token', () => {
-        it('should call the client by POSTing with the correct request body', () => {
-            loginClient.login(loginDetails)
+        it('should call the client by POSTing with the correct request body', async () => {
+            const accessToken = 'something'
+            const axiosInstanceMock = {
+                post: jest.fn(() => Promise.resolve({
+                    data: { access_token: accessToken }
+                }))
+            }
+            axios.create = jest.fn(() => (axiosInstanceMock))
 
+            loginClient = new TeslaOAuthClient()
+
+            const actualToken = await loginClient.login(loginDetails)
+
+            expect(actualToken).toEqual(accessToken)
             expect(axiosInstanceMock.post).toHaveBeenCalledWith(
                 TeslaOAuthClient.loginFragment, {
                     grant_type: 'password',
@@ -40,6 +43,17 @@ describe('tesla authentication', () => {
                     client_secret: loginDetails.clientSecret
                 }
             )
+        })
+
+        it('should throw if the POST call fails', async () => {
+            const postError = Promise.reject(new Error('rejected!'))
+            const axiosInstanceMock = { post: jest.fn(() => postError) }
+            axios.create = jest.fn(() => axiosInstanceMock)
+            loginClient = new TeslaOAuthClient()
+
+            const error = loginClient.login(loginDetails)
+
+            expect(error).toEqual(postError)
         })
     })
 })
