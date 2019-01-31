@@ -20,6 +20,10 @@ export class TeslaOAuthClient implements OAuthClient {
             }
         })
     }
+
+    private _isLoggedIn() {
+        return !!this._axiosClient.defaults.headers.Authorization;
+    }
     
     async login(loginDetails: OAuthLoginDetails) {
         const { email, password } = loginDetails
@@ -31,6 +35,10 @@ export class TeslaOAuthClient implements OAuthClient {
             password
         })
 
-        return response.data.access_token
+        const token = response.data.access_token
+
+        this._axiosClient.defaults.headers.Authorization = `Bearer ${token}`
+
+        return response.data;
     }
 }
