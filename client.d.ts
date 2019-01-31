@@ -21,12 +21,4 @@ export interface OAuthLoginDetails {
      * Your Tesla.com password.
      */
     password: String
-    /**
-     * Your Tesla client id.
-     */
-    clientId: String
-    /**
-     * Your Tesla client secret.
-     */
-    clientSecret: String
 }

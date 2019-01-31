@@ -36,11 +36,11 @@ describe('tesla oauth', () => {
             expect(actualToken).toEqual(accessToken)
             expect(axiosInstanceMock.post).toHaveBeenCalledWith(
                 TeslaOAuthClient.loginFragment, {
-                    grant_type: 'password',
+                    grant_type: TeslaOAuthClient.grantType,
                     email: loginDetails.email,
                     password: loginDetails.password,
-                    client_id: loginDetails.clientId,
-                    client_secret: loginDetails.clientSecret
+                    client_id: TeslaOAuthClient.clientId,
+                    client_secret: TeslaOAuthClient.clientSecret
                 }
             )
         })
