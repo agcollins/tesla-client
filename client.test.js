@@ -13,8 +13,6 @@ describe('tesla oauth', () => {
     beforeEach(() => {
         loginDetails = {
             email: 'sullenumbra@gmail.com',
-            clientSecret: 'asdf',
-            clientId: 'hjkl',
             password: '1234'
         }
     })
