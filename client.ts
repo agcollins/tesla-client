@@ -1,26 +1,33 @@
-/**
- * An authenticator.
- */
-interface Authenticator {
-    /**
-     * log in. Returns a bearer token.
-     * @param username 
-     * @param password 
-     * @param clientId 
-     * @param clientSecret 
-     */
-    login(username: String, password: String, clientId: String, clientSecret: String): String;
-} 
+import axios, { AxiosInstance } from 'axios'
+import { OAuthClient, OAuthLoginDetails } from './client.d'
 
 /**
  * Logs you in to your Tesla account.
  */
-class TeslaAuthenticator implements Authenticator {
-    login(userName, password, clientId, clientString) { 
-        const token = "5";
+export class TeslaOAuthClient implements OAuthClient {
+    static baseURL = 'https://owner-api.teslamotors.com/'
+    static loginFragment = '/oauth/token?grant_type=password'
+    private _axiosClient: AxiosInstance
 
-        
+    constructor() {
+        this._axiosClient = axios.create({
+            baseURL: TeslaOAuthClient.baseURL,
+            headers: {
+                'User-Agent': 'sullenumbra@gmail.com'
+            }
+        })
+    }
+    
+    async login(loginDetails: OAuthLoginDetails) {
+        const { clientId, clientSecret, email, password } = loginDetails
+        const response = await this._axiosClient.post(TeslaOAuthClient.loginFragment, {
+            grant_type: 'password',
+            client_id: clientId,
+            client_secret: clientSecret,
+            email,
+            password
+        })
 
-        return token;
+        return response.data.access_token
     }
 }

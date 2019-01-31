@@ -2,7 +2,7 @@
   "name": "m3js",
   "version": "0.0.1",
   "description": "tesla model 3 js client",
-  "main": "client.js",
+  "main": "dist/client.js",
   "scripts": {
     "test": "jest"
   },
@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/agcollins/m3js/issues"
   },
-  "homepage": "https://github.com/agcollins/m3js#readme"
+  "homepage": "https://github.com/agcollins/m3js#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "jest": "^24.0.0",
+    "typescript": "^3.2.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "ts-jest": "^23.10.5"
+  }
 }
