@@ -1,33 +1,33 @@
 {
-  "name": "m3js",
-  "version": "0.0.1",
-  "description": "tesla model 3 js client",
-  "main": "dist/client.js",
-  "scripts": {
-    "test": "jest --coverage",
-    "prepare": "npx tsc",
-    "prettier:base": "prettier --parser typescript --single-quote",
-    "prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
-    "prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/agcollins/m3js.git"
-  },
-  "author": "Alexander Collins",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/agcollins/m3js/issues"
-  },
-  "homepage": "https://github.com/agcollins/m3js#readme",
-  "dependencies": {
-    "axios": "^0.18.0"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.13",
-    "jest": "^23.6.0",
-    "prettier": "^1.16.3",
-    "ts-jest": "^23.10.5",
-    "typescript": "^3.2.4"
-  }
+	"name": "m3js",
+	"version": "0.0.1",
+	"description": "tesla model 3 js client",
+	"main": "dist/teslaVehicleClient.js",
+	"scripts": {
+		"test": "jest --coverage",
+		"prepare": "npx tsc",
+		"prettier:base": "prettier --parser typescript --single-quote",
+		"prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
+		"prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tesla-js/tesla-client.git"
+	},
+	"author": "Alexander Collins",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/tesla-js/tesla-client/projects/1"
+	},
+	"homepage": "https://github.com/tesla-js/tesla-client#readme",
+	"dependencies": {
+		"axios": "^0.18.0"
+	},
+	"devDependencies": {
+		"@types/jest": "^23.3.13",
+		"jest": "^23.6.0",
+		"prettier": "^1.16.3",
+		"ts-jest": "^23.10.5",
+		"typescript": "^3.2.4"
+	}
 }
