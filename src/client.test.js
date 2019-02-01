@@ -3,6 +3,10 @@ jest.mock('axios')
 const axios = require('axios')
 const { TeslaOAuthClient } = require('./client')
 
+const axiosMock = jest.fn(() => ({
+    
+}))
+
 beforeEach(() => {
     axios.mockClear()
 })

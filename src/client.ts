@@ -20,10 +20,6 @@ export class TeslaOAuthClient implements OAuthClient {
             }
         })
     }
-
-    private _isLoggedIn() {
-        return !!this._axiosClient.defaults.headers.Authorization;
-    }
     
     async login(loginDetails: OAuthLoginDetails) {
         const { email, password } = loginDetails
@@ -37,8 +33,15 @@ export class TeslaOAuthClient implements OAuthClient {
 
         const token = response.data.access_token
 
-        this._axiosClient.defaults.headers.Authorization = `Bearer ${token}`
+        // I think this is only needed for tests because the defaults can't be undefined
+        if (!this._axiosClient.defaults) {
+            this._axiosClient.defaults = {
+                headers: {}
+            }
+        }
 
-        return response.data;
+        this._axiosClient.defaults.headers.Authorization= `Bearer ${token}`
+
+        return token;
     }
 }

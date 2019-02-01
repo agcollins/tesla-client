@@ -5,7 +5,10 @@
   "main": "dist/client.js",
   "scripts": {
     "test": "jest --coverage",
-    "prepare": "npx tsc"
+    "prepare": "npx tsc",
+    "prettier:base": "prettier --parser typescript --single-quote",
+    "prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
+    "prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\""
   },
   "repository": {
     "type": "git",
@@ -18,12 +21,13 @@
   },
   "homepage": "https://github.com/agcollins/m3js#readme",
   "dependencies": {
-    "axios": "^0.18.0",
-    "typescript": "^3.2.4"
+    "axios": "^0.18.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.13",
     "jest": "^23.6.0",
-    "ts-jest": "^23.10.5"
+    "prettier": "^1.16.3",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.4"
   }
 }
