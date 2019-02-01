@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/tesla-js/tesla-client.svg?branch=master)](https://travis-ci.com/tesla-js/tesla-client)
-# tesla-client - a high-quality Tesla Javascript client
+# tesla-client
+## a high-quality Tesla Javascript client.
 
 ### Tools
 * Typescript
