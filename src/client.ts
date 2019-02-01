@@ -31,13 +31,10 @@ export class TeslaOAuthClient implements OAuthClient {
             password
         })
 
-        const token = response.data.access_token
+        const token = response.data.access_token;
 
-        // I think this is only needed for tests because the defaults can't be undefined
-        if (!this._axiosClient.defaults) {
-            this._axiosClient.defaults = {
-                headers: {}
-            }
+        if (!this._axiosClient.defaults.headers) {
+            this._axiosClient.defaults.headers = {}
         }
 
         this._axiosClient.defaults.headers.Authorization= `Bearer ${token}`

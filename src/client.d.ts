@@ -13,7 +13,7 @@ export interface OAuthClient {
  * Commands that a client may send to a Tesla car.
  */
 export interface TeslaCommand {
-    wakeUp(vehicleId: String): Promise<Boolean>
+    wakeUp(): Promise<Boolean>
 }
 
 /**

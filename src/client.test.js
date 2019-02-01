@@ -3,18 +3,18 @@ jest.mock('axios')
 const axios = require('axios')
 const { TeslaOAuthClient } = require('./client')
 
-const axiosMock = jest.fn(() => ({
-    
-}))
-
 beforeEach(() => {
     axios.mockClear()
 })
 
 describe('tesla oauth', () => {
     let loginClient, loginDetails
+    const testToken = '1230912389127490asdf'
 
     beforeEach(() => {
+        axios.create = jest.fn().mockReturnValue({ post: jest.fn(), defaults: {} })
+
+        loginClient = new TeslaOAuthClient()
         loginDetails = {
             email: 'sullenumbra@gmail.com',
             password: '1234'
@@ -23,20 +23,15 @@ describe('tesla oauth', () => {
 
     describe('getting a token', () => {
         it('should call the client by POSTing with the correct request body', async () => {
-            const accessToken = 'something'
-            const axiosInstanceMock = {
-                post: jest.fn(() => Promise.resolve({
-                    data: { access_token: accessToken }
-                }))
-            }
-            axios.create = jest.fn(() => (axiosInstanceMock))
-
-            loginClient = new TeslaOAuthClient()
+            const postMock = axios.create.mock.results[0].value.post;
+            postMock.mockResolvedValue({
+                data: { access_token: testToken }
+            })
 
             const actualToken = await loginClient.login(loginDetails)
 
-            expect(actualToken).toEqual(accessToken)
-            expect(axiosInstanceMock.post).toHaveBeenCalledWith(
+            expect(actualToken).toEqual(testToken)
+            expect(postMock).toHaveBeenCalledWith(
                 TeslaOAuthClient.loginFragment, {
                     grant_type: TeslaOAuthClient.grantType,
                     email: loginDetails.email,
@@ -49,8 +44,7 @@ describe('tesla oauth', () => {
 
         it('should throw if the POST call fails', async () => {
             const postError = new Error('rejected!')
-            const axiosInstanceMock = { post: jest.fn(() => Promise.reject(postError)) }
-            axios.create = jest.fn(() => axiosInstanceMock)
+            axios.create.mock.results[0].value.post.mockRejectedValue(postError)
             loginClient = new TeslaOAuthClient()
 
             try {
