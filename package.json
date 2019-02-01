@@ -1,7 +1,7 @@
 {
 	"name": "tesla-client",
 	"version": "0.1.0",
-	"description": "A high-quality Tesla javscript client.",
+	"description": "A high-quality Tesla Javascript client.",
 	"main": "dist/teslaVehicleClient.js",
 	"scripts": {
 		"test": "jest --coverage",
