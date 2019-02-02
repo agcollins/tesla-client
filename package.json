@@ -4,7 +4,7 @@
 	"description": "A high-quality Tesla Javascript client.",
 	"main": "dist/teslaVehicleClient.js",
 	"scripts": {
-		"test": "jest --coverage",
+		"test": "jest --coverage --coverageReporters=text-lcov | coveralls",
 		"prepare": "npx tsc",
 		"prettier:base": "prettier --parser typescript --single-quote",
 		"prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
@@ -12,19 +12,20 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tesla-js/tesla-client.git"
+		"url": "git+https://github.com/agcollins/tesla-client.git"
 	},
 	"author": "Alexander Collins",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/tesla-js/tesla-client/projects/1"
+		"url": "https://github.com/agcollins/tesla-client/projects/1"
 	},
-	"homepage": "https://github.com/tesla-js/tesla-client#readme",
+	"homepage": "https://github.com//tesla-client#readme",
 	"dependencies": {
 		"axios": "^0.18.0"
 	},
 	"devDependencies": {
 		"@types/jest": "^23.3.13",
+		"coveralls": "^3.0.2",
 		"jest": "^23.6.0",
 		"prettier": "^1.16.3",
 		"ts-jest": "^23.10.5",
