@@ -12,14 +12,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tesla-js/tesla-client.git"
+		"url": "git+https://github.com/agcollins/tesla-client.git"
 	},
 	"author": "Alexander Collins",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/tesla-js/tesla-client/projects/1"
+		"url": "https://github.com/agcollins/tesla-client/projects/1"
 	},
-	"homepage": "https://github.com/tesla-js/tesla-client#readme",
+	"homepage": "https://github.com//tesla-client#readme",
 	"dependencies": {
 		"axios": "^0.18.0"
 	},
