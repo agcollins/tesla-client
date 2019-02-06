@@ -1,7 +1,7 @@
 jest.mock('axios');
 
 import axios, { AxiosResponse } from 'axios';
-import { TeslaVehicleClient } from './teslaVehicleClient';
+import { TeslaVehicleClient } from './tesla-vehicle-client';
 import { OAuthLoginDetails } from './oAuthClient';
 
 beforeEach(() => {
@@ -10,8 +10,6 @@ beforeEach(() => {
 
 describe('tesla oauth', () => {
 	let testToken: string;
-	let testResponse: AxiosResponse;
-
 	let loginPostMock: any;
 	let axiosInstanceMockDefaults: any;
 	let loginClient: TeslaVehicleClient;
@@ -27,15 +25,13 @@ describe('tesla oauth', () => {
 	describe('login success', () => {
 		beforeEach(() => {
 			axios.create = jest.fn().mockReturnValue({
-				post: (loginPostMock = jest.fn().mockResolvedValue(
-					(testResponse = {
-						data: { access_token: (testToken = '1230912389127490asdf') },
-						status: 200,
-						statusText: 'success',
-						headers: {},
-						config: {}
-					})
-				)),
+				post: (loginPostMock = jest.fn().mockResolvedValue({
+					data: { access_token: (testToken = '1230912389127490asdf') },
+					status: 200,
+					statusText: 'success',
+					headers: {},
+					config: {}
+				})),
 				defaults: (axiosInstanceMockDefaults = {})
 			});
 
@@ -43,15 +39,17 @@ describe('tesla oauth', () => {
 		});
 
 		it('should set the default Authorization header', async () => {
+			const { oAuthDetails: { grantType, clientId, clientSecret } } = TeslaVehicleClient;
+
 			await loginClient.login(loginDetails);
 
 			expect(axiosInstanceMockDefaults.headers.Authorization).toEqual(`Bearer ${testToken}`);
-			expect(loginPostMock).toHaveBeenCalledWith(TeslaVehicleClient.loginFragment, {
-				grant_type: TeslaVehicleClient.grantType,
+			expect(loginPostMock).toHaveBeenCalledWith(TeslaVehicleClient.fragments.login, {
+				grant_type: grantType,
 				email: loginDetails.email,
 				password: loginDetails.password,
-				client_id: TeslaVehicleClient.clientId,
-				client_secret: TeslaVehicleClient.clientSecret
+				client_id: clientId,
+				client_secret: clientSecret
 			});
 		});
 
