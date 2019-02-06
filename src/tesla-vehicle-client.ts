@@ -52,18 +52,6 @@ export class TeslaVehicleClient implements OAuthClient, TeslaVehicle {
 		this._loggedIn = true;
 
 		this._axiosClient.defaults.baseURL += 'api/1/';
-
-		this._axiosClient.interceptors.request.use((value) => {
-			console.log('request:', value.url, JSON.stringify(value.data));
-
-			return value;
-		});
-
-		this._axiosClient.interceptors.response.use((value) => {
-			console.log('response:', value.status, JSON.stringify(value.data));
-
-			return value;
-		});
 	}
 
 	async getBatteryLevel() {
