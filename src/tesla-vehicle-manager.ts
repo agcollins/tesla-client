@@ -1,11 +1,12 @@
+import { TeslaVehicle } from './tesla-vehicle-client';
 import axios, { AxiosInstance } from 'axios';
-import { OAuthClient, OAuthLoginDetails } from './oAuthClient';
-import { TeslaVehicle } from './tesla-vehicle';
+import { OAuthLoginDetails } from './oAuthClient';
+import { TeslaVehicleClient } from './tesla-vehicle-client';
 
 /**
  * Logs you in to your Tesla account, and does things to your vehicles.
  */
-export class TeslaVehicleClient implements OAuthClient, TeslaVehicle {
+export class TeslaVehicleManager implements TeslaVehicleClient {
 	static fragments = {
 		login: 'oauth/token?grant_type=password',
 		getBatteryLevel: (id: string | number) => `vehicles/${id}/data_request/charge_state`,
@@ -33,8 +34,8 @@ export class TeslaVehicleClient implements OAuthClient, TeslaVehicle {
 
 	async login(loginDetails: OAuthLoginDetails) {
 		const { email, password } = loginDetails;
-		const { oAuthDetails: { grantType, clientId, clientSecret } } = TeslaVehicleClient;
-		const response = await this._axiosClient.post(TeslaVehicleClient.fragments.login, {
+		const { oAuthDetails: { grantType, clientId, clientSecret } } = TeslaVehicleManager;
+		const response = await this._axiosClient.post(TeslaVehicleManager.fragments.login, {
 			grant_type: grantType,
 			client_id: clientId,
 			client_secret: clientSecret,
@@ -54,17 +55,17 @@ export class TeslaVehicleClient implements OAuthClient, TeslaVehicle {
 		this._axiosClient.defaults.baseURL += 'api/1/';
 	}
 
-	async getBatteryLevel() {
-		const [ { id } ] = await this.getVehicles();
-		const { data: { response: { battery_level } } } = await this._axiosClient.get(
-			TeslaVehicleClient.fragments.getBatteryLevel(id)
-		);
-
-		return battery_level;
+	async _getBatteryLevel(id: string) {
+		return (await this._axiosClient.get(TeslaVehicleManager.fragments.getBatteryLevel(id))).data.response
+			.battery_level;
 	}
 
-	async getVehicles(): Promise<Array<{ id: string; state: string; name: string }>> {
-		const { data: { response: vehicles } } = await this._axiosClient.get(TeslaVehicleClient.fragments.getVehicles);
+	async getBatteryLevels() {
+		return Promise.all((await this.getVehicles()).map(({ id }) => this._getBatteryLevel(id)));
+	}
+
+	async getVehicles(): Promise<Array<TeslaVehicle>> {
+		const { data: { response: vehicles } } = await this._axiosClient.get(TeslaVehicleManager.fragments.getVehicles);
 
 		return vehicles.map(({ id_s, state, display_name }: { id_s: string; state: string; display_name: string }) => {
 			return {
@@ -78,6 +79,6 @@ export class TeslaVehicleClient implements OAuthClient, TeslaVehicle {
 	async _wake(): Promise<void> {
 		const [ { id } ] = await this.getVehicles();
 
-		await this._axiosClient.post(TeslaVehicleClient.fragments.wake(id));
+		await this._axiosClient.post(TeslaVehicleManager.fragments.wake(id));
 	}
 }
