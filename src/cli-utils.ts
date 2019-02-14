@@ -37,7 +37,6 @@ export const doCli = async function(client: TeslaVehicleClient) {
 				return;
 			}
 			console.log('..');
-			return showSpinner();
 		}, 10);
 	});
 
