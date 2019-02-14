@@ -38,7 +38,7 @@ export const doCli = async function(client: TeslaVehicleClient) {
 			}
 			console.log('..');
 		}, 10);
-	});
+	})();
 
 	await client.wake();
 
