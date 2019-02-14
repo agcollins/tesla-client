@@ -22,7 +22,7 @@ export const question = async function(str: string, yesNo?: boolean): Promise<st
 			} else if (/^\s*no?\s*$/i.test(answer)) {
 				resolve(false);
 			} else {
-				resolve(question('as'));
+				resolve(question('What?', true));
 			}
 		});
 	});
