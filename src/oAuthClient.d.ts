@@ -4,9 +4,9 @@
 export interface OAuthClient {
 	/**
    * log in. Returns a bearer token.
-   * @param loginDetails
+   * @param loginDetails the username / password or a string if you have a token already
    */
-	login(loginDetails: OAuthLoginDetails): Promise<void>;
+	login(loginDetails: OAuthLoginDetails | string): Promise<void>;
 }
 
 /**

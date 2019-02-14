@@ -1,6 +1,6 @@
 jest.mock('axios');
 
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { TeslaVehicleManager } from './tesla-vehicle-manager';
 import { OAuthLoginDetails } from './oAuthClient';
 
@@ -39,13 +39,13 @@ describe('tesla oauth', () => {
 		});
 
 		it('should set the default Authorization header', async () => {
-			const { oAuthDetails: { grantType, clientId, clientSecret } } = TeslaVehicleManager;
+			const { oAuthDetails: { clientId, clientSecret } } = TeslaVehicleManager;
 
 			await loginClient.login(loginDetails);
 
 			expect(axiosInstanceMockDefaults.headers.Authorization).toEqual(`Bearer ${testToken}`);
 			expect(loginPostMock).toHaveBeenCalledWith(TeslaVehicleManager.fragments.login, {
-				grant_type: grantType,
+				grant_type: 'password',
 				email: loginDetails.email,
 				password: loginDetails.password,
 				client_id: clientId,
