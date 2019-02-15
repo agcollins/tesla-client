@@ -4,11 +4,12 @@
 	"description": "A high-quality Tesla Javascript client.",
 	"main": "dist/teslaVehicleClient.js",
 	"scripts": {
-		"test": "jest --coverage --coverageReporters=text-lcov | coveralls",
-		"prepare": "npx tsc",
+		"test": "jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls",
+		"prepare": "rm -rf dist && npx tsc",
 		"prettier:base": "prettier --parser typescript --single-quote",
 		"prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
-		"prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\""
+		"prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\"",
+		"start": "npm run prepare && node dist/tesla-cli"
 	},
 	"repository": {
 		"type": "git",
@@ -21,6 +22,7 @@
 	},
 	"homepage": "https://github.com//tesla-client#readme",
 	"dependencies": {
+		"@types/node": "^10.12.24",
 		"axios": "^0.18.0"
 	},
 	"devDependencies": {

@@ -1,7 +1,10 @@
 jest.mock('axios');
+jest.mock('./config', () => ({
+	saveToken: jest.fn().mockResolvedValue('')
+}));
 
-import axios, { AxiosResponse } from 'axios';
-import { TeslaVehicleClient } from './teslaVehicleClient';
+import axios from 'axios';
+import { TeslaVehicleManager } from './tesla-vehicle-manager';
 import { OAuthLoginDetails } from './oAuthClient';
 
 beforeEach(() => {
@@ -10,11 +13,9 @@ beforeEach(() => {
 
 describe('tesla oauth', () => {
 	let testToken: string;
-	let testResponse: AxiosResponse;
-
-	let loginPostMock: any;
+	let postMock: jest.MockInstance<any>;
 	let axiosInstanceMockDefaults: any;
-	let loginClient: TeslaVehicleClient;
+	let loginClient: TeslaVehicleManager;
 	let loginDetails: OAuthLoginDetails;
 
 	beforeEach(() => {
@@ -27,31 +28,46 @@ describe('tesla oauth', () => {
 	describe('login success', () => {
 		beforeEach(() => {
 			axios.create = jest.fn().mockReturnValue({
-				post: (loginPostMock = jest.fn().mockResolvedValue(
-					(testResponse = {
-						data: { access_token: (testToken = '1230912389127490asdf') },
-						status: 200,
-						statusText: 'success',
-						headers: {},
-						config: {}
-					})
-				)),
-				defaults: (axiosInstanceMockDefaults = {})
+				post: (postMock = jest.fn().mockResolvedValue({
+					data: { access_token: (testToken = '1230912389127490asdf') },
+					status: 200,
+					statusText: 'success',
+					headers: {},
+					config: {}
+				})),
+				defaults: (axiosInstanceMockDefaults = {}),
+				interceptors: {
+					request: {
+						use: jest.fn()
+					},
+					response: {
+						use: jest.fn()
+					}
+				},
+				baseUrl: ''
 			});
 
-			loginClient = new TeslaVehicleClient();
+			loginClient = new TeslaVehicleManager();
+
+			jest.spyOn(loginClient, 'getVehicles').mockImplementation(() => [
+				{
+					id: '123',
+					lastKnownState: '',
+					name: ''
+				}
+			]);
 		});
 
 		it('should set the default Authorization header', async () => {
+			const { oAuthDetails: { clientId, clientSecret } } = TeslaVehicleManager;
 			await loginClient.login(loginDetails);
 
 			expect(axiosInstanceMockDefaults.headers.Authorization).toEqual(`Bearer ${testToken}`);
-			expect(loginPostMock).toHaveBeenCalledWith(TeslaVehicleClient.loginFragment, {
-				grant_type: TeslaVehicleClient.grantType,
-				email: loginDetails.email,
-				password: loginDetails.password,
-				client_id: TeslaVehicleClient.clientId,
-				client_secret: TeslaVehicleClient.clientSecret
+			expect(postMock).toHaveBeenCalledWith(TeslaVehicleManager.fragments.login, {
+				grantType: 'password',
+				clientId,
+				clientSecret,
+				...loginDetails
 			});
 		});
 
@@ -70,10 +86,19 @@ describe('tesla oauth', () => {
 		beforeEach(() => {
 			postError = new Error('rejected!');
 			axios.create = jest.fn().mockReturnValue({
-				post: (loginPostMock = jest.fn().mockRejectedValue(postError))
+				post: (postMock = jest.fn().mockRejectedValue(postError)),
+				interceptors: {
+					request: {
+						use: jest.fn()
+					},
+					response: {
+						use: jest.fn()
+					}
+				},
+				defaults: {}
 			});
 
-			loginClient = new TeslaVehicleClient();
+			loginClient = new TeslaVehicleManager();
 		});
 
 		it('should throw', async () => {
