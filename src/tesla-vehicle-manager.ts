@@ -109,7 +109,7 @@ export class TeslaVehicleManager implements TeslaVehicleClient {
 
 		this._axiosClient.defaults.baseURL += `/${id}/`;
 
-		const refreshTokenAxiosInstance = this._getAxiosInstance();
+		// const refreshTokenAxiosInstance = this._getAxiosInstance();
 		// setInterval(async () => {
 		// 	console.log('Refreshing.');
 
@@ -133,13 +133,12 @@ export class TeslaVehicleManager implements TeslaVehicleClient {
 
 	async _getBatteryLevel(id: string) {
 		const response = await this._axiosClient.get('data_request/charge_state');
-		console.log(response);
 		return response.data.response.battery_level;
 	}
 
 	async wake(): Promise<void> {
 		await this._axiosClient.post('wakeUp', undefined, {
-			timeout: 5000
+			timeout: 20000
 		});
 	}
 

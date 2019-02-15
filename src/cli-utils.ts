@@ -51,7 +51,6 @@ export const doCli = async function(client: TeslaVehicleClient) {
 		done = true;
 
 		let promptString = 'What do you want to do?';
-		let stupid = NaN;
 
 		const options = [ () => client.getBatteryLevels() ];
 		const commands = Object.keys(TeslaVehicleCommand).map((command) => () => client.issue(Number(command)));
@@ -67,14 +66,14 @@ export const doCli = async function(client: TeslaVehicleClient) {
 				--answerNumber;
 			}
 
-			if (answerNumber < options.length) await options[answerNumber]();
-			else if (answerNumber < options.length + commands.length) await commands[answerNumber - options.length]();
+			if (answerNumber < options.length) console.log(await options[answerNumber]());
+			else if (answerNumber < options.length + Math.floor(commands.length / 2))
+				await commands[answerNumber - options.length]();
 			else return;
 		}
 	} catch (e) {
 		console.log(e.toString());
 	} finally {
 		done = true;
-		console.log('hi');
 	}
 };
