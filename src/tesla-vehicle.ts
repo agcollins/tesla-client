@@ -1,8 +1,10 @@
+import { TeslaVehicleClient } from './tesla-vehicle';
 import { OAuthClient } from './oAuthClient';
 
 export enum TeslaVehicleCommand {
 	autoConditioningStart,
 	autoConditioningStop
+
 	// remoteStartDrive,
 	// honkHorn,
 	// flashLights,

@@ -29,60 +29,52 @@ export const question = async function(str: string, yesNo?: boolean): Promise<st
 };
 
 export const doCli = async function(client: TeslaVehicleClient) {
-	// console.clear();
-	let done = false;
+	var done = false;
 	(function showSpinner() {
+		var i = 0;
+		var numSeconds = 1;
 		setInterval(function() {
 			if (done) {
 				return;
 			}
-			console.log('..');
-		}, 10);
+
+			if (i++ % 5 === 0 && i > 1) {
+				i = 0;
+				console.log(`${numSeconds++} sec`);
+			}
+			console.log('.');
+		}, 200);
 	})();
 
-	await client.wake();
+	try {
+		await client.wake();
+		done = true;
 
-	done = true;
+		let promptString = 'What do you want to do?';
+		let stupid = NaN;
 
-	let promptString = 'What do you want to do?';
-	while (true) {
-		// console.clear();
-		console.log('Welcome to the Telsa cli.\nYou can:');
-		console.log(`1) See charge\n2) Start auto conditioning\n3) Stop auto conditioning\n4) Exit`);
+		const options = [ () => client.getBatteryLevels() ];
+		const commands = Object.keys(TeslaVehicleCommand).map((command) => () => client.issue(Number(command)));
 
-		const answer = await question(promptString);
-		promptString = '?';
+		while (true) {
+			console.log('Welcome to the Telsa cli.\nYou can:');
+			console.log(`1) See charge\n2) Start auto conditioning\n3) Stop auto conditioning\n4) Exit`);
 
-		try {
-			switch (answer) {
-				case '1': {
-					const [ level ] = await client.getBatteryLevels();
-
-					console.log(`Your vehicle is ${JSON.stringify(level)}% charged`);
-					break;
-				}
-
-				case '2': {
-					await client.issue(TeslaVehicleCommand.autoConditioningStart);
-					break;
-				}
-
-				case '3': {
-					await client.issue(TeslaVehicleCommand.autoConditioningStop);
-
-					break;
-				}
-
-				case '4': {
-					return console.log('Come back soon.');
-				}
-
-				default: {
-					console.log('Woops!');
-				}
+			const answer = await question(promptString);
+			promptString = '?';
+			let answerNumber = Number(answer);
+			if (answerNumber) {
+				--answerNumber;
 			}
-		} catch (e) {
-			console.log(e.toString());
+
+			if (answerNumber < options.length) await options[answerNumber]();
+			else if (answerNumber < options.length + commands.length) await commands[answerNumber - options.length]();
+			else return;
 		}
+	} catch (e) {
+		console.log(e.toString());
+	} finally {
+		done = true;
+		console.log('hi');
 	}
 };

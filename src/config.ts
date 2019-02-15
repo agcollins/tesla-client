@@ -34,16 +34,7 @@ export async function getToken(): Promise<string | undefined> {
 
 	if (diskToken) return diskToken;
 
-	const userHasToken = await (async () => {
-		let yesNo;
-		do {
-			yesNo = await question('Do you have a token?', true);
-		} while (yesNo === undefined);
-
-		return yesNo;
-	})();
-
-	if (userHasToken) {
+	if (await question('Do you have a token?', true)) {
 		return (await question('What is it?')).toString();
 	}
 }
