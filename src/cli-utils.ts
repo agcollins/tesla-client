@@ -1,16 +1,17 @@
-import { TeslaVehicleClient, TeslaVehicleCommand } from './tesla-vehicle';
+import { TeslaVehicleManager } from './tesla-vehicle-manager';
 import readline from 'readline';
+import { getToken, getUsername, getPassword } from './config';
+import { TeslaVehicleClient } from './tesla-vehicle';
 
 const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
-
 /**
- * Ask a question to the user, and get an answer. It can also check for yes/no answers optionally.
+ * Ask a question to the user, and get an answer. It can also enforce yes/no answers optionally.
  * @param str the question, to which a space is added before the user input.
- * @param yesNo if it's true we'll check that they answered yes or no, and return a Promise of boolean or
- * undefined if they didn't answer a yes-y or no-y answer.
+ * @param yesNo if it's true we'll check that they answered yes or no, and will keep asking until
+ * they respond with a yes-like or no-like answer.
  */
 export const question = async function(str: string, yesNo?: boolean): Promise<string | boolean> {
 	return new Promise((resolve) => {
@@ -27,53 +28,35 @@ export const question = async function(str: string, yesNo?: boolean): Promise<st
 		});
 	});
 };
-
-export const doCli = async function(client: TeslaVehicleClient) {
+/**
+ * Show a loading thing
+ * @param promise a promise to wait to finish. propagates the promise.
+ * @returns the promise
+ */
+export async function loader<T>(promise: Promise<T>): Promise<T> {
+	process.on('unhandledRejection', (e) => {
+		console.log(e);
+		if (!done) console.log('something really went wrong.');
+		done = true;
+	});
+	var i = 0;
+	var numSeconds = 1;
 	var done = false;
-	(function showSpinner() {
-		var i = 0;
-		var numSeconds = 1;
-		setInterval(function() {
-			if (done) {
-				return;
-			}
-
-			if (i++ % 5 === 0 && i > 1) {
-				i = 0;
-				console.log(`${numSeconds++} sec`);
-			}
-			console.log('.');
-		}, 200);
-	})();
-
-	try {
-		await client.wake();
-		done = true;
-
-		let promptString = 'What do you want to do?';
-
-		const options = [ () => client.getBatteryLevels() ];
-		const commands = Object.keys(TeslaVehicleCommand).map((command) => () => client.issue(Number(command)));
-
-		while (true) {
-			console.log('Welcome to the Telsa cli.\nYou can:');
-			console.log(`1) See charge\n2) Start auto conditioning\n3) Stop auto conditioning\n4) Exit`);
-
-			const answer = await question(promptString);
-			promptString = '?';
-			let answerNumber = Number(answer);
-			if (answerNumber) {
-				--answerNumber;
-			}
-
-			if (answerNumber < options.length) console.log(await options[answerNumber]());
-			else if (answerNumber < options.length + Math.floor(commands.length / 2))
-				await commands[answerNumber - options.length]();
-			else return;
+	const interval: NodeJS.Timeout = setInterval(function() {
+		if (done) return clearInterval(interval);
+		// Insert a gap every 5
+		if (i++ % 5 === 0 && i > 1 && (i = 0)) {
+			console.log(`${numSeconds++} sec`);
 		}
-	} catch (e) {
-		console.log(e.toString());
-	} finally {
-		done = true;
-	}
+		console.log('.');
+	}, 200);
+	const val: any = await promise;
+	done = true;
+	return val;
+}
+export const getTeslaVehicle = async () => {
+	const client: TeslaVehicleClient = new TeslaVehicleManager();
+	return (
+		await client.login((await getToken()) || { email: await getUsername(), password: await getPassword() }), client
+	);
 };

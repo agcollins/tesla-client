@@ -4,7 +4,7 @@
 	"description": "A high-quality Tesla Javascript client.",
 	"main": "dist/teslaVehicleClient.js",
 	"scripts": {
-		"test": "jest --coverage --coverageReporters=text-lcov | coveralls",
+		"test": "jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls",
 		"prepare": "rm -rf dist && npx tsc",
 		"prettier:base": "prettier --parser typescript --single-quote",
 		"prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",

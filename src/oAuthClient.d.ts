@@ -8,7 +8,6 @@ export interface OAuthClient {
    */
 	login(loginDetails: OAuthLoginDetails | string): Promise<void>;
 }
-
 /**
  * The details required to log in and receive an OAuth token.
  */
