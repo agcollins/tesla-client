@@ -1,0 +1,12 @@
+.vscode/
+node_modules/
+coverage/
+src/
+.tt
+jest.config.jest
+README.md
+tsconfig.json
+.gitignore
+.git/
+.travis.yml
+.nvmrc

@@ -1,29 +1,32 @@
-import { TeslaVehicleCommand } from './tesla-vehicle';
-import { TeslaVehicleClient, TeslaVehicleDetails } from './tesla-vehicle';
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { OAuthLoginDetails } from './oAuthClient';
-import { saveToken } from './config';
+import { TeslaVehicle, TeslaVehicleDetails, getAxiosInstance, TeslaVehicleCommand } from './tesla-vehicle';
+import { AxiosInstance } from 'axios';
+
+export const command = TeslaVehicleCommand;
 
 /**
  * Logs you in to your Tesla account, and does things to your vehicles.
  */
-export class TeslaVehicleManager implements TeslaVehicleClient {
-	static fragments = {
-		login: 'oauth/token?grant_type=password',
-		refresh: 'oauth/token?grant_type=refresh_token'
-	};
-	static oAuthDetails = {
-		clientId: '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384',
-		clientSecret: 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
-	};
+export class TeslaVehicleManager implements TeslaVehicle {
 	private _axiosClient: AxiosInstance;
 	private _vehicleCache: Array<TeslaVehicleDetails> = [];
-	constructor() {
-		this._axiosClient = this._getAxiosInstance();
+
+	static async getVehicle(token: string): Promise<TeslaVehicle> {
+		do {
+			try {
+				return await new TeslaVehicleManager(token)._wakeVehicle();
+			} catch (e) {}
+		} while (true);
 	}
-	async getBatteryLevels() {
-		return Promise.all((await this.getVehicles()).map(({ id }) => this._getBatteryLevel(id)));
+
+	private constructor(token: string) {
+		this._axiosClient = getAxiosInstance(token);
 	}
+
+	public async getBatteryLevel() {
+		return (await this._axiosClient.get(`/${await this._getId()}/data_request/charge_state`)).data.response
+			.battery_level;
+	}
+
 	async getVehicles(): Promise<Array<TeslaVehicleDetails>> {
 		if (!this._vehicleCache.length) {
 			const { data: { response: vehicles } } = await this._axiosClient.get('');
@@ -39,61 +42,17 @@ export class TeslaVehicleManager implements TeslaVehicleClient {
 		}
 		return this._vehicleCache;
 	}
-	async wake(): Promise<void> {
-		await this._axiosClient.post('wakeUp');
+
+	public async issue(command: TeslaVehicleCommand): Promise<void> {
+		await this._axiosClient.post(`/${await this._getId()}/command/${TeslaVehicleCommand[command]}`);
 	}
-	async issue(command: TeslaVehicleCommand) {
-		await this._axiosClient.post(`command/${TeslaVehicleCommand[command]}`);
+
+	private async _wakeVehicle(): Promise<TeslaVehicle> {
+		await this._axiosClient.post(`/${await this._getId()}/wakeUp`);
+		return this;
 	}
-	async login(loginDetails: string | OAuthLoginDetails) {
-		let savedToken: string;
-		if (typeof loginDetails === 'string') {
-			savedToken = loginDetails;
-		} else {
-			const { fragments: { login } } = TeslaVehicleManager;
-			const { data: { access_token: token } } = await this._axiosClient.post(login, {
-				...loginDetails,
-				...TeslaVehicleManager.oAuthDetails,
-				grantType: 'password'
-			});
-			savedToken = token;
-		}
-		if (!this._axiosClient.defaults.headers) {
-			this._axiosClient.defaults.headers = {};
-		}
-		this._axiosClient.defaults.headers.Authorization = `Bearer ${savedToken}`;
-		await saveToken(savedToken);
-		this._axiosClient.defaults.baseURL += 'api/1/vehicles';
-		const [ { id } ] = await this.getVehicles();
-		this._axiosClient.defaults.baseURL += `/${id}/`;
-	}
-	private async _getBatteryLevel(id: string) {
-		return (await this._axiosClient.get('data_request/charge_state')).data.response.battery_level;
-	}
-	private _getAxiosInstance() {
-		const instance = axios.create({
-			baseURL: 'https://owner-api.teslamotors.com/',
-			headers: {
-				'User-Agent': 'sullenumbra@gmail.com'
-			}
-		});
-		instance.interceptors.request.use((requestConfig: AxiosRequestConfig) => {
-			// convert the url from camel case to snake case
-			if (requestConfig.url) {
-				requestConfig.url = requestConfig.url.replace(/([A-Z])/g, (match) => `_${match[0].toLowerCase()}`);
-			}
-			// and then if there is request data, convert it all
-			if (requestConfig.data) {
-				const newObj: { [configDataKey: string]: { configDataValue: string } } = {};
-				Object.getOwnPropertyNames(requestConfig.data).forEach((property) => {
-					const snakeCaseProperty = property.replace(/([A-Z])/g, (match) => `_${match[0].toLowerCase()}`);
-					newObj[snakeCaseProperty.toString()] = requestConfig.data[property];
-				});
-				requestConfig.data = newObj;
-			}
-			return requestConfig;
-		});
-		instance.defaults.timeout = 20000;
-		return instance;
+
+	private async _getId() {
+		return (await this.getVehicles())[0].id;
 	}
 }

@@ -1,11 +1,11 @@
 {
 	"name": "tesla-client",
-	"version": "0.1.0",
+	"version": "0.2.3",
 	"description": "A high-quality Tesla Javascript client.",
-	"main": "dist/teslaVehicleClient.js",
+	"main": "dist/tesla-vehicle-manager.js",
 	"scripts": {
 		"test": "jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls",
-		"prepare": "rm -rf dist && npx tsc",
+		"prepare": "npx tsc",
 		"prettier:base": "prettier --parser typescript --single-quote",
 		"prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
 		"prettier:write": "npm run prettier:base -- --write \"src/**/*.{ts,tsx}\"",

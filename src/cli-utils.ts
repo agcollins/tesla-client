@@ -1,7 +1,4 @@
-import { TeslaVehicleManager } from './tesla-vehicle-manager';
 import readline from 'readline';
-import { getToken, getUsername, getPassword } from './config';
-import { TeslaVehicleClient } from './tesla-vehicle';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -34,29 +31,17 @@ export const question = async function(str: string, yesNo?: boolean): Promise<st
  * @returns the promise
  */
 export async function loader<T>(promise: Promise<T>): Promise<T> {
-	process.on('unhandledRejection', (e) => {
-		console.log(e);
-		if (!done) console.log('something really went wrong.');
-		done = true;
-	});
 	var i = 0;
 	var numSeconds = 1;
-	var done = false;
 	const interval: NodeJS.Timeout = setInterval(function() {
-		if (done) return clearInterval(interval);
 		// Insert a gap every 5
-		if (i++ % 5 === 0 && i > 1 && (i = 0)) {
-			console.log(`${numSeconds++} sec`);
-		}
-		console.log('.');
+		// if (i++ % 5 === 0 && i > 1 && (i = 0)) {
+		// 	console.log(`${numSeconds++} sec`);
+		// }
+		// console.log('.');
 	}, 200);
-	const val: any = await promise;
-	done = true;
-	return val;
+
+	return promise.finally(() => {
+		clearInterval(interval);
+	});
 }
-export const getTeslaVehicle = async () => {
-	const client: TeslaVehicleClient = new TeslaVehicleManager();
-	return (
-		await client.login((await getToken()) || { email: await getUsername(), password: await getPassword() }), client
-	);
-};
