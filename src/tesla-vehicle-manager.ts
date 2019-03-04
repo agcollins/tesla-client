@@ -1,58 +1,58 @@
-import { TeslaVehicle, TeslaVehicleDetails, getAxiosInstance, TeslaVehicleCommand } from './tesla-vehicle';
+import { TeslaVehicle, TeslaVehicleDetails, getAxiosInstance, TeslaVehicleCommand, TeslaOwner } from './tesla';
 import { AxiosInstance } from 'axios';
 
 export const command = TeslaVehicleCommand;
 
+export async function getOwner(token: string): Promise<TeslaOwner> {
+	const client = getAxiosInstance(token);
+	const { data: { response: vehicleData } } = await client.get('');
+
+	const vehicles: Promise<
+		TeslaVehicle
+	>[] = vehicleData.map(({ id_s, state, display_name }: { id_s: string; state: string; display_name: string }) =>
+		TeslaVehicleImpl.create(client, {
+			id: id_s,
+			name: display_name,
+			lastKnownState: state
+		})
+	);
+
+	return {
+		vehicles: await Promise.all(vehicles)
+	};
+}
+
 /**
  * Logs you in to your Tesla account, and does things to your vehicles.
  */
-export class TeslaVehicleManager implements TeslaVehicle {
-	private _axiosClient: AxiosInstance;
-	private _vehicleCache: Array<TeslaVehicleDetails> = [];
+export class TeslaVehicleImpl implements TeslaVehicle {
+	private constructor(private _client: AxiosInstance, private _details: TeslaVehicleDetails) {}
 
-	static async getVehicle(token: string): Promise<TeslaVehicle> {
-		do {
+	public static async create(client: AxiosInstance, detail: TeslaVehicleDetails): Promise<TeslaVehicle> {
+		const vehicle = new TeslaVehicleImpl(client, detail);
+		while (true)
 			try {
-				return await new TeslaVehicleManager(token)._wakeVehicle();
-			} catch (e) {}
-		} while (true);
-	}
-
-	private constructor(token: string) {
-		this._axiosClient = getAxiosInstance(token);
+				return await vehicle._wake();
+			} finally {
+			}
 	}
 
 	public async getBatteryLevel() {
-		return (await this._axiosClient.get(`/${await this._getId()}/data_request/charge_state`)).data.response
+		return (await this._client.get(`/${await this._getId()}/data_request/charge_state`)).data.response
 			.battery_level;
 	}
 
-	async getVehicles(): Promise<Array<TeslaVehicleDetails>> {
-		if (!this._vehicleCache.length) {
-			const { data: { response: vehicles } } = await this._axiosClient.get('');
-			this._vehicleCache = vehicles.map(
-				({ id_s, state, display_name }: { id_s: string; state: string; display_name: string }) => {
-					return {
-						id: id_s,
-						state,
-						name: display_name
-					};
-				}
-			);
-		}
-		return this._vehicleCache;
+	public async issue(command: TeslaVehicleCommand): Promise<TeslaVehicle> {
+		await this._client.post(`/${await this._getId()}/command/${TeslaVehicleCommand[command]}`);
+		return this;
 	}
 
-	public async issue(command: TeslaVehicleCommand): Promise<void> {
-		await this._axiosClient.post(`/${await this._getId()}/command/${TeslaVehicleCommand[command]}`);
-	}
-
-	private async _wakeVehicle(): Promise<TeslaVehicle> {
-		await this._axiosClient.post(`/${await this._getId()}/wakeUp`);
+	private async _wake(): Promise<TeslaVehicle> {
+		await this._client.post(`/${await this._getId()}/wakeUp`);
 		return this;
 	}
 
 	private async _getId() {
-		return (await this.getVehicles())[0].id;
+		return this._details.id;
 	}
 }

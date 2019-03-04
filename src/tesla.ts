@@ -1,7 +1,5 @@
-import { TeslaVehicleManager } from './tesla-vehicle-manager';
-import { TeslaVehicle } from './tesla-vehicle';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { getToken } from './config';
+import { TeslaVehicle } from './tesla';
+import axios, { AxiosRequestConfig } from 'axios';
 
 export enum TeslaVehicleCommand {
 	autoConditioningStart,
@@ -39,7 +37,7 @@ export interface TeslaVehicle {
 	/**
 	 * Issue a command to the vehicle.
 	 */
-	issue(command: TeslaVehicleCommand): Promise<void>;
+	issue(command: TeslaVehicleCommand): Promise<TeslaVehicle>;
 }
 
 export interface TeslaVehicleDetails {
@@ -48,6 +46,11 @@ export interface TeslaVehicleDetails {
 	name: string;
 }
 
+export interface TeslaOwner {
+	vehicles: TeslaVehicle[];
+}
+
+// this should be somewhere else, probably
 export const getAxiosInstance = (token?: string) => {
 	const instance = axios.create({
 		baseURL: 'https://owner-api.teslamotors.com/',

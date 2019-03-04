@@ -1,6 +1,5 @@
 import { OAuthLoginDetails, OAuthClient } from './oAuthClient.d';
-import { getAxiosInstance } from './tesla-vehicle';
-import { saveToken } from './config';
+import { getAxiosInstance } from './tesla';
 
 export const fragments = {
 	login: 'oauth/token?grant_type=password',
@@ -20,6 +19,6 @@ export class TeslaOAuthClient implements OAuthClient {
 			...oAuthDetails,
 			grantType: 'password'
 		});
-		return saveToken(loginResponse.data.access_token);
+		return loginResponse.data.access_token;
 	}
 }

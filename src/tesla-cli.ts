@@ -1,21 +1,20 @@
-import { TeslaVehicleManager } from './tesla-vehicle-manager';
-import { TeslaVehicleCommand, TeslaVehicle } from './tesla-vehicle';
-import { question, loader } from './cli-utils';
-import { getToken } from './config';
+import { getOwner } from './tesla-vehicle-manager';
+import { TeslaVehicleCommand, TeslaVehicle } from './tesla';
+import { question, loader, getToken } from './cli-utils';
 
-function getCommands(client: TeslaVehicle) {
+function getCommands(vehicle: TeslaVehicle) {
 	return [
-		() => loader(client.getBatteryLevel()),
+		() => loader(vehicle.getBatteryLevel()),
 		...(Object.keys(TeslaVehicleCommand)
 			.filter((lol) => parseInt(lol) >= 0)
-			.map((command) => () => loader(client.issue(Number(command)))) as any[])
+			.map((command) => () => loader(vehicle.issue(Number(command)))) as any[])
 	];
 }
 
 export const cli = async function() {
 	console.log('Booting up...');
-	const client: TeslaVehicle = await TeslaVehicleManager.getVehicle(await getToken());
-	const commands = getCommands(client);
+	const { vehicles: [ vehicle ] } = await getOwner(await getToken());
+	const commands = getCommands(vehicle);
 	let answerNumber = -1;
 
 	let num = 0;
