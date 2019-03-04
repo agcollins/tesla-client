@@ -11,6 +11,9 @@ function getCommands(vehicle: TeslaVehicle) {
 	];
 }
 
+/**
+ * Start the cli.
+ */
 export const cli = async function() {
 	console.log('Booting up...');
 	const { vehicles: [ vehicle ] } = await getOwner(await getToken());

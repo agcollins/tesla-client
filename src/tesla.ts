@@ -40,17 +40,18 @@ export interface TeslaVehicle {
 	issue(command: TeslaVehicleCommand): Promise<TeslaVehicle>;
 }
 
-export interface TeslaVehicleDetails {
-	id: string;
-	lastKnownState: string;
-	name: string;
-}
-
+/** 
+ * A Tesla owner. Has vehicles.
+ * (or none, poor guy)
+ */
 export interface TeslaOwner {
 	vehicles: TeslaVehicle[];
 }
 
-// this should be somewhere else, probably
+/**
+ * Gets an Axios instance preconfigured to hit the Tesla apis, barring auth if you have no token.
+ * @param token A token, if you have one
+ */
 export const getAxiosInstance = (token?: string) => {
 	const instance = axios.create({
 		baseURL: 'https://owner-api.teslamotors.com/',
@@ -58,17 +59,19 @@ export const getAxiosInstance = (token?: string) => {
 			'User-Agent': 'sullenumbra@gmail.com'
 		}
 	});
+	const toSnakeCase = (str: string) => str.replace(/([A-Z])/g, (match) => `_${match[0].toLowerCase()}`);
+
 	instance.interceptors.request.use((requestConfig: AxiosRequestConfig) => {
 		// convert the url from camel case to snake case
 		if (requestConfig.url) {
-			requestConfig.url = requestConfig.url.replace(/([A-Z])/g, (match) => `_${match[0].toLowerCase()}`);
+			requestConfig.url = toSnakeCase(requestConfig.url);
 		}
 		// and then if there is request data, convert it all
 		if (requestConfig.data) {
 			const newObj: { [configDataKey: string]: { configDataValue: string } } = {};
-			Object.getOwnPropertyNames(requestConfig.data).forEach((property) => {
-				const snakeCaseProperty = property.replace(/([A-Z])/g, (match) => `_${match[0].toLowerCase()}`);
-				newObj[snakeCaseProperty.toString()] = requestConfig.data[property];
+			Object.getOwnPropertyNames(requestConfig.data).forEach((originalProperty) => {
+				const snakeCasePropertyName = toSnakeCase(originalProperty).toString();
+				newObj[snakeCasePropertyName] = requestConfig.data[originalProperty];
 			});
 			requestConfig.data = newObj;
 		}

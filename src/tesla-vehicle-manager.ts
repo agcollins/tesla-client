@@ -1,8 +1,22 @@
-import { TeslaVehicle, TeslaVehicleDetails, getAxiosInstance, TeslaVehicleCommand, TeslaOwner } from './tesla';
+import { TeslaVehicle, getAxiosInstance, TeslaVehicleCommand, TeslaOwner } from './tesla';
 import { AxiosInstance } from 'axios';
 
 export const command = TeslaVehicleCommand;
 
+/**
+ * Tesla vehicle details
+ */
+interface TeslaVehicleDetails {
+	id: string;
+	lastKnownState: string;
+	name: string;
+}
+
+/**
+ * Returns a Tesla owner given its token
+ * @param token The owner's login token
+ * @returns the owner as a promise
+ */
 export async function getOwner(token: string): Promise<TeslaOwner> {
 	const client = getAxiosInstance(token);
 	const { data: { response: vehicleData } } = await client.get('');
@@ -23,11 +37,16 @@ export async function getOwner(token: string): Promise<TeslaOwner> {
 }
 
 /**
- * Logs you in to your Tesla account, and does things to your vehicles.
+ * A Tesla vehicle.
  */
-export class TeslaVehicleImpl implements TeslaVehicle {
+class TeslaVehicleImpl implements TeslaVehicle {
 	private constructor(private _client: AxiosInstance, private _details: TeslaVehicleDetails) {}
 
+	/**
+	 * Create a Tesla vehicle which has been woken up.
+	 * @param client axios client
+	 * @param detail the vehicle's details
+	 */
 	public static async create(client: AxiosInstance, detail: TeslaVehicleDetails): Promise<TeslaVehicle> {
 		const vehicle = new TeslaVehicleImpl(client, detail);
 		while (true)

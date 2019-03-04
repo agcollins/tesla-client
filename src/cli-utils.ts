@@ -1,7 +1,12 @@
-import { TeslaOAuthClient } from './teslaOAuthClient';
+import { TeslaOAuthClient } from './tesla-oauth-client';
 import readline from 'readline';
 import fs from 'fs';
 
+/**
+ * Prompt the user for a token, saves, and returns it. Otherwise, asks the user for email and password, then saves the token.
+ * 
+ * @returns the token as a promise
+ */
 export async function getToken(): Promise<string> {
 	if (process.env.TESLA_TOKEN) return process.env.TESLA_TOKEN;
 	const diskToken = await readTokenFromDisk();

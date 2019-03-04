@@ -1,4 +1,4 @@
-import { OAuthLoginDetails, OAuthClient } from './oAuthClient.d';
+import { OAuthLoginDetails, OAuthClient } from './oauth-client';
 import { getAxiosInstance } from './tesla';
 
 export const fragments = {
@@ -11,6 +11,9 @@ export const oAuthDetails = {
 	clientSecret: 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
 };
 
+/**
+ * A Tesla OAuth client.
+ */
 export class TeslaOAuthClient implements OAuthClient {
 	async login(loginDetails: OAuthLoginDetails) {
 		const axiosInstance = getAxiosInstance();
