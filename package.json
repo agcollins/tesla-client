@@ -23,7 +23,7 @@
 	"homepage": "https://github.com//tesla-client#readme",
 	"dependencies": {
 		"@types/node": "^10.12.24",
-		"axios": "^0.18.0"
+		"axios": "^0.21.1"
 	},
 	"devDependencies": {
 		"@types/jest": "^23.3.13",
